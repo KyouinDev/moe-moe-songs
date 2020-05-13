@@ -1,4 +1,4 @@
-package io.kyouin.opmoemoe.utils;
+package io.kyouin.moemoesongs.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 public class FilterOptions {
 
     public enum FilterType {
-        TITLE, SOURCE, SONG_TITLE, SONG_ARTIST
+        VERSION, SOURCE, SONG_TITLE
     }
 
     private final Map<FilterType, String> filterOptions = new HashMap<>();
@@ -16,7 +16,7 @@ public class FilterOptions {
     }
 
     public FilterOptions filterTitle(String partialTitle) {
-        filterOption(FilterType.TITLE, partialTitle);
+        filterOption(FilterType.VERSION, partialTitle);
 
         return this;
     }
@@ -29,12 +29,6 @@ public class FilterOptions {
 
     public FilterOptions filterSongTitle(String partialSongTitle) {
         filterOption(FilterType.SONG_TITLE, partialSongTitle);
-
-        return this;
-    }
-
-    public FilterOptions filterSongArtist(String partialSongArtist) {
-        filterOption(FilterType.SONG_ARTIST, partialSongArtist);
 
         return this;
     }
