@@ -11,12 +11,12 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MoeCore {
 
@@ -91,31 +91,51 @@ public class MoeCore {
 
     public static void updateAnimeList() {
         List<Anime> temp = new ArrayList<>();
-        Map<String, Document> docs = new HashMap<>();
-
-        Document doc = null;
+        Document index = null;
 
         try {
-            doc = Jsoup.connect("https://www.reddit.com/r/AnimeThemes/wiki/anime_index").get();
+            index = Jsoup.connect("https://www.reddit.com/r/AnimeThemes/wiki/anime_index").get();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (doc == null) throw new IllegalArgumentException("Anime index could not be get.");
+        if (index == null) throw new IllegalArgumentException("Anime index could not be get.");
 
-        Elements paragraphs = doc.selectFirst("div.md.wiki").select("p");
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        Elements paragraphs = index.selectFirst("div.md.wiki").select("p");
 
-        paragraphs.stream().skip(1)
+        List<String> urls = paragraphs.stream().skip(1)
                 .map(paragraph -> paragraph.selectFirst("a").absUrl("abs:href").split("#")[0])
                 .distinct()
-                .forEach(url -> executorService.execute(() -> {
-                    try {
-                        docs.put(url, Jsoup.connect(url).get());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }));
+                .collect(Collectors.toList());
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        urls.forEach(url -> executorService.execute(() -> {
+            try {
+                Document doc = null;
+
+                while (doc == null) {
+                    doc = Jsoup.connect(url).get();
+                }
+
+                Document finalDoc = doc;
+
+                paragraphs.stream().skip(1).forEachOrdered(paragraph -> {
+                    String rawUrl = paragraph.selectFirst("a").absUrl("abs:href");
+
+                    String docUrl = rawUrl.split("#")[0];
+
+                    if (!docUrl.equals(url)) return;
+
+                    String id = rawUrl.split("#")[1];
+
+                    Element h3 = finalDoc.getElementById(id);
+                    temp.add(new Anime(h3));
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
 
         try {
             executorService.shutdown();
@@ -123,19 +143,6 @@ public class MoeCore {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        paragraphs.stream().skip(1).forEach(paragraph -> {
-            String rawUrl = paragraph.selectFirst("a").absUrl("abs:href");
-            Document animeDoc = docs.get(rawUrl.split("#")[0]);
-
-            if (animeDoc == null) return;
-
-            Element h3 = animeDoc.getElementById(rawUrl.split("#")[1]);
-
-            if (h3 == null) return;
-
-            temp.add(new Anime(h3));
-        });
 
         if (temp.size() > animeList.size()) animeList = temp;
     }
