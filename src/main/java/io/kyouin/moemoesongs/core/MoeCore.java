@@ -22,6 +22,8 @@ public class MoeCore {
 
     private static List<Anime> animeList = new ArrayList<>();
 
+    // Get methods
+
     public static List<Anime> getAnimeList() {
         return animeList;
     }
@@ -46,11 +48,11 @@ public class MoeCore {
         return filtered;
     }
 
-    public static List<AnimeSong> getFromTitle(String title) {
+    public static List<AnimeSong> getFromTitle(String animeTitle) {
         List<AnimeSong> filtered = new ArrayList<>();
 
         animeList.stream()
-                .filter(anime -> StringUtils.partialMatch(title, anime.getTitle()) || (anime.getAlternateTitle() != null && StringUtils.partialMatch(title, anime.getAlternateTitle())))
+                .filter(anime -> StringUtils.partialMatch(animeTitle, anime.getTitle()) || (anime.getAlternateTitle() != null && StringUtils.partialMatch(animeTitle, anime.getAlternateTitle())))
                 .forEach(anime -> filtered.addAll(anime.getSongs()));
 
         return filtered;
@@ -89,48 +91,47 @@ public class MoeCore {
         return filtered;
     }
 
-    public static void updateAnimeList() {
-        List<Anime> temp = new ArrayList<>();
-        Document index = null;
+    // Update methods
+
+    public static void updateAnimeList(int concurrentThreads) {
+        List<Anime> animeTempList = new ArrayList<>();
+        Document animeIndex = null;
 
         try {
-            index = Jsoup.connect("https://www.reddit.com/r/AnimeThemes/wiki/anime_index").get();
+            animeIndex = Jsoup.connect("https://www.reddit.com/r/AnimeThemes/wiki/anime_index").get();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (index == null) throw new IllegalArgumentException("Anime index could not be get.");
+        if (animeIndex == null) throw new IllegalArgumentException("Anime index could not be get.");
 
-        Elements paragraphs = index.selectFirst("div.md.wiki").select("p");
-
-        List<String> urls = paragraphs.stream().skip(1)
-                .map(paragraph -> paragraph.selectFirst("a").absUrl("abs:href").split("#")[0])
+        Elements animeEntries = animeIndex.selectFirst("div.md.wiki").select("p");
+        List<String> animeUrls = animeEntries.stream().skip(1)
+                .map(animeEntry -> animeEntry.selectFirst("a").absUrl("abs:href").split("#")[0])
                 .distinct()
                 .collect(Collectors.toList());
+        ExecutorService executorService = Executors.newFixedThreadPool(concurrentThreads);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-        urls.forEach(url -> executorService.execute(() -> {
+        animeUrls.forEach(url -> executorService.execute(() -> {
             try {
-                Document doc = null;
+                Document tempDoc = null;
 
-                while (doc == null) {
-                    doc = Jsoup.connect(url).get();
+                while (tempDoc == null) {
+                    tempDoc = Jsoup.connect(url).get();
                 }
 
-                Document finalDoc = doc;
+                Document doc = tempDoc;
 
-                paragraphs.stream().skip(1).forEachOrdered(paragraph -> {
-                    String rawUrl = paragraph.selectFirst("a").absUrl("abs:href");
-
+                animeEntries.stream().skip(1).forEachOrdered(animeEntry -> {
+                    String rawUrl = animeEntry.selectFirst("a").absUrl("abs:href");
                     String docUrl = rawUrl.split("#")[0];
 
                     if (!docUrl.equals(url)) return;
 
                     String id = rawUrl.split("#")[1];
+                    Element h3 = doc.getElementById(id);
 
-                    Element h3 = finalDoc.getElementById(id);
-                    temp.add(new Anime(h3));
+                    if (h3 != null) animeTempList.add(new Anime(h3));
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -144,6 +145,6 @@ public class MoeCore {
             e.printStackTrace();
         }
 
-        if (temp.size() > animeList.size()) animeList = temp;
+        if (animeTempList.size() > animeList.size()) animeList = animeTempList;
     }
 }

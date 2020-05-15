@@ -10,18 +10,18 @@ Everything is handled by **MoeCore** class. To browse anime entries and their so
 public class MyClass {
     
     public static void main(String[] args) {
-        MoeCore.updateAnimeList();
+        MoeCore.updateAnimeList(10); //10 concurrent threads
         
         //do your stuff
     }
 }
 ```
-Please note that updating anime list will require some time (in seconds), code will wait until everything is done.
+*Please note that updating anime list will require some time (in seconds), code will wait until everything is done. If you want to avoid this, specify more threads to be running at once, but be aware of the performance cost.*
  
 Currently available methods are:
 * `getOpenings`
 * `getEndings`
-* `getFromTitle(String title)`
+* `getFromTitle(String animeTitle)`
 * `getFromSongTitle(String songTitle)`
 * `getFromFilter(FilterOptions filterOptions)`
  
@@ -31,7 +31,7 @@ Returns only opening songs.
 ##### getEndings
 Returns only ending songs.
  
-##### getFromTitle(String title)
+##### getFromTitle(String animeTitle)
 Returns songs whose anime source's title contains given text.
  
 ##### getFromSongTitle(String songTitle)
@@ -43,4 +43,4 @@ Returns songs that matches multiple parameters at once. Currently:
 * `SOURCE` (anime title/anime alternate title)
 * `SONG_TITLE` (song title, duh).
  
-Every given parameter in every method will be matched partially (or fully).
+*Every given parameter in every method will be matched partially (or fully).*
