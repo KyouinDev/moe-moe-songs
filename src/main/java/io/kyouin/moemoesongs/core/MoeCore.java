@@ -55,21 +55,21 @@ public class MoeCore {
         return filtered;
     }
 
-    public static List<EntrySong> getFromTitle(String title) {
+    public static List<EntrySong> getFromSource(String partialSource) {
         List<EntrySong> filtered = new ArrayList<>();
 
         entryList.stream()
-                .filter(entry -> StringUtils.partialMatch(title, entry.getTitle()) || (entry.getAlternateTitle() != null && StringUtils.partialMatch(title, entry.getAlternateTitle())))
+                .filter(entry -> StringUtils.partialMatch(partialSource, entry.getTitle()) || (entry.getAlternateTitle() != null && StringUtils.partialMatch(partialSource, entry.getAlternateTitle())))
                 .forEach(entry -> filtered.addAll(entry.getSongs()));
 
         return filtered;
     }
 
-    public static List<EntrySong> getFromSongTitle(String songTitle) {
+    public static List<EntrySong> getFromSongTitle(String partialSongTitle) {
         List<EntrySong> filtered = new ArrayList<>();
 
         entryList.forEach(entry -> filtered.addAll(entry.getSongs().stream()
-                .filter(song -> StringUtils.partialMatch(songTitle, song.getTitle()))
+                .filter(song -> StringUtils.partialMatch(partialSongTitle, song.getTitle()))
                 .collect(Collectors.toList())));
 
         return filtered;
