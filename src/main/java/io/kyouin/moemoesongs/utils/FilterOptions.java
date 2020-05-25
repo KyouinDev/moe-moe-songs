@@ -15,8 +15,8 @@ public class FilterOptions {
         filterOptions.put(filterType, partialString);
     }
 
-    public FilterOptions filterTitle(String partialTitle) {
-        filterOption(FilterType.VERSION, partialTitle);
+    public FilterOptions filterVersion(String partialVersion) {
+        filterOption(FilterType.VERSION, partialVersion);
 
         return this;
     }

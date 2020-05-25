@@ -21,8 +21,8 @@ public class MyClass {
 Currently available methods are:
 * `getOpenings`
 * `getEndings`
-* `getFromTitle(String title)`
-* `getFromSongTitle(String songTitle)`
+* `getFromSource(String partialSource)`
+* `getFromSongTitle(String partialSongTitle)`
 * `getFromFilter(FilterOptions filterOptions)`
  
 ##### getAnimeList
@@ -37,10 +37,10 @@ Returns only opening songs.
 ##### getEndings
 Returns only ending songs.
  
-##### getFromTitle(String title)
+##### getFromSource(String partialSource)
 Returns songs whose source's title contains given text.
  
-##### getFromSongTitle(String songTitle)
+##### getFromSongTitle(String partialSongTitle)
 Returns songs whose title contains given text.
  
 ##### getFromFilter(FilterOptions filterOptions)
