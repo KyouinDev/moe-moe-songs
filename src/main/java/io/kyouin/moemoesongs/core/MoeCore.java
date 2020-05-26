@@ -80,7 +80,7 @@ public class MoeCore {
         List<EntrySong> filtered = new ArrayList<>();
 
         entryList.forEach(entry -> {
-            if (options.containsKey(FilterOptions.FilterType.SOURCE) && StringUtils.partialMatch(options.get(FilterOptions.FilterType.SOURCE), entry.getTitle()) || (entry.getAlternateTitle() != null && StringUtils.partialMatch(options.get(FilterOptions.FilterType.SOURCE), entry.getAlternateTitle()))) {
+            if (options.containsKey(FilterOptions.FilterType.SOURCE) && (StringUtils.partialMatch(options.get(FilterOptions.FilterType.SOURCE), entry.getTitle()) || StringUtils.partialMatch(options.get(FilterOptions.FilterType.SOURCE), entry.getAlternateTitle()))) {
                 filtered.addAll(entry.getSongs());
 
                 return;
