@@ -1,43 +1,31 @@
 package io.kyouin.moemoesongs.entities;
 
-import org.jsoup.nodes.Element;
+import io.kyouin.moemoesongs.enums.EntryType;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class Entry {
 
-    public enum EntryType {
-        ANIME, GAME
-    }
-
     private final EntryType type;
+    private final String link;
     private final String title;
     private final String alternateTitle;
-    private final List<EntrySong> songs;
-    private final String link;
+    private List<EntrySong> songs;
 
-    public Entry(Element element, EntryType entryType) {
-        type = entryType;
-        title = element.text().trim();
-        link = element.selectFirst("a") == null ? null : element.selectFirst("a").attr("href");
-
-        element = element.nextElementSibling();
-
-        if (element.tagName().equals("p")) {
-            alternateTitle = element.text().trim();
-
-            element = element.nextElementSibling();
-        } else alternateTitle = null;
-
-        songs = element.select("tbody > tr").stream()
-                .filter(e -> !e.selectFirst("td").text().isEmpty() && !e.select("td").get(1).select("a").isEmpty())
-                .map(song -> new EntrySong(this, song))
-                .collect(Collectors.toList());
+    public Entry(EntryType type, String link, String title, String alternateTitle) {
+        this.type = type;
+        this.link = link;
+        this.title = title;
+        this.alternateTitle = alternateTitle;
     }
 
     public EntryType getType() {
         return type;
+    }
+
+    public String getLink() {
+        return link;
     }
 
     public String getTitle() {
@@ -52,7 +40,7 @@ public class Entry {
         return songs;
     }
 
-    public String getLink() {
-        return link;
+    public void setSongs(List<EntrySong> songs) {
+        this.songs = songs;
     }
 }

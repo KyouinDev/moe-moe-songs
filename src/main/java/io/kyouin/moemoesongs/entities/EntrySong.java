@@ -1,42 +1,28 @@
 package io.kyouin.moemoesongs.entities;
 
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import java.util.List;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+@SuppressWarnings("unused")
 public class EntrySong {
 
-    private final Entry source;
+    private final Entry entry;
     private final String title;
     private final String version;
-    private final String link;
-    private String where;
-    private String notes;
+    private final List<String> links;
+    private final String where;
+    private final String notes;
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public EntrySong(Entry entry, Element tableRow) {
-        Elements cells = tableRow.select("td");
-        Matcher matcher = Pattern.compile("(.+) ?\"(.+)?\".*").matcher(cells.get(0).text());
-        matcher.matches();
-
-        source = entry;
-        title = matcher.group(2);
-        version = matcher.group(1).trim();
-        link = cells.get(1).selectFirst("a").attr("href");
-
-        if (cells.size() == 4) {
-            where = cells.get(2).text().isEmpty() ? null : cells.get(2).text();
-            notes = cells.get(3).text().isEmpty() ? null : cells.get(3).text();
-        } else if (cells.size() == 3 && !cells.get(2).text().isEmpty()) {
-            if (source.getType() == Entry.EntryType.ANIME) where = cells.get(2).text();
-            else notes = cells.get(2).text();
-        }
+    public EntrySong(Entry entry, String title, String version, List<String> links, String where, String notes) {
+        this.entry = entry;
+        this.title = title;
+        this.version = version;
+        this.links = links;
+        this.where = where;
+        this.notes = notes;
     }
 
-    public Entry getSource() {
-        return source;
+    public Entry getEntry() {
+        return entry;
     }
 
     public String getTitle() {
@@ -47,8 +33,8 @@ public class EntrySong {
         return version;
     }
 
-    public String getLink() {
-        return link;
+    public List<String> getLinks() {
+        return links;
     }
 
     public String getWhere() {

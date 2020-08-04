@@ -4,49 +4,28 @@ A small library that uses [animethemes](https://animethemes.moe) index and data.
 ### How to use
 Clone this repository and then launch maven package goal.
  
-### Features
-Everything is handled by **MoeCore** class. To browse anime/game entries and their songs, you must first load them once.
+### MoeCore
+Almost everything is handled by the **MoeCore** class. To browse anime/game entries, you must first load them once. This is automatically done when trying to access an empty entry list.
+ 
+Here's a sample code:
 ```java
 public class MyClass {
     
     public static void main(String[] args) {
-        MoeCore.updateSongList(10); //10 concurrent threads
+        System.out.println(MoeCore.getInstance().getAnimeEntries().size() + " anime loaded");
+        System.out.println(MoeCore.getInstance().getGameEntries().size() + " games loaded"); //if you want game entries too
         
         //do your stuff
     }
 }
 ```
-*Please note that updating entry list will require some time (in seconds), code will wait until everything is done. If you want to avoid this, specify more threads to be running at once, but be aware of the performance cost.*
+Alternatively, you can manually update them (anytime you want) using `updateAnimeEntries(concurrentThreads: int)` and `updateGameEntries()`.
+Default concurrent threads are 4, even for `getAnimeEntries()` first load, but you can modify this value according to your needs (and performances).
  
-Currently available methods are:
-* `getOpenings`
-* `getEndings`
-* `getFromSource(String partialSource)`
-* `getFromSongTitle(String partialSongTitle)`
-* `getFromFilter(FilterOptions filterOptions)`
+### Filters
+There is a filtering system too! Specify whether or not you want anime or game entries, or both.
  
-##### getAnimeList
-Returns anime entries.
- 
-##### getGameList
-Returns game entries.
- 
-##### getOpenings
-Returns only opening songs.
-  
-##### getEndings
-Returns only ending songs.
- 
-##### getFromSource(String partialSource)
-Returns songs whose source's title contains given text.
- 
-##### getFromSongTitle(String partialSongTitle)
-Returns songs whose title contains given text.
- 
-##### getFromFilter(FilterOptions filterOptions)
-Returns songs that matches multiple parameter types at once. Currently supported:
-* `VERSION` (opening/ending, version etc)
-* `SOURCE` (title/alternate title)
-* `SONG_TITLE` (song title, duh).
- 
-*Every given parameter in every method will be matched partially (or fully).*
+The following code line will show you how to use filters, taking for example... only Steins;Gate anime openings.
+```java
+List<EntrySong> filtered = EntryFilter.anime().filterEntryTitle("Steins;Gate").filterSongVersion("OP").result();
+```
