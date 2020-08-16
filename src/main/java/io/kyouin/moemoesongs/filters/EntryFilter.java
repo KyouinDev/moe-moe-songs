@@ -1,4 +1,4 @@
-package io.kyouin.moemoesongs.filter;
+package io.kyouin.moemoesongs.filters;
 
 import io.kyouin.moemoesongs.core.MoeCore;
 import io.kyouin.moemoesongs.entities.Entry;
@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
-public class EntryFilter {
+public final class EntryFilter {
 
     private Stream<EntrySong> songs;
 

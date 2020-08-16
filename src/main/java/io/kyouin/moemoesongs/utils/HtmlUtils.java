@@ -6,7 +6,11 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 
-public class HtmlUtils {
+public final class HtmlUtils {
+
+    private HtmlUtils() {
+        //nothing
+    }
 
     public static Element getBody(String url) {
         Document doc = null;

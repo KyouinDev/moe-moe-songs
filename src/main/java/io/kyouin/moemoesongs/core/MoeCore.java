@@ -2,7 +2,6 @@ package io.kyouin.moemoesongs.core;
 
 import io.kyouin.moemoesongs.entities.Entry;
 import io.kyouin.moemoesongs.enums.EntryType;
-import io.kyouin.moemoesongs.utils.EntryUtils;
 import io.kyouin.moemoesongs.utils.HtmlUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -15,7 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class MoeCore {
+public final class MoeCore {
 
     private static MoeCore instance = null;
 
@@ -23,9 +22,11 @@ public class MoeCore {
 
     private List<Entry> gameEntries = null;
 
-    private MoeCore() {}
+    private MoeCore() {
+        //nothing
+    }
 
-    public static MoeCore getInstance() {
+    public synchronized static MoeCore getInstance() {
         if (instance == null) {
             instance = new MoeCore();
         }
@@ -67,7 +68,7 @@ public class MoeCore {
                         .filter(entry -> entry.selectFirst("a").absUrl("abs:href").split("#")[0].equals(url))
                         .map(entry -> body.getElementById(entry.selectFirst("a").absUrl("abs:href").split("#")[1]))
                         .filter(Objects::nonNull)
-                        .map(h3 -> EntryUtils.buildEntry(h3, EntryType.ANIME))
+                        .map(h3 -> Entry.fromElement(h3, EntryType.ANIME))
                         .collect(Collectors.toList()));
             }));
 
@@ -89,7 +90,7 @@ public class MoeCore {
         Elements entries = index.select("div.md.wiki > h3");
 
         gameEntries = entries.stream().skip(1)
-                .map(entry -> EntryUtils.buildEntry(entry, EntryType.GAME))
+                .map(entry -> Entry.fromElement(entry, EntryType.GAME))
                 .collect(Collectors.toList());
     }
 }
