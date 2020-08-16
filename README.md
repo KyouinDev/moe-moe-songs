@@ -1,4 +1,7 @@
 # MoeMoeSongs
+![Code Quality Score](https://www.code-inspector.com/project/12332/score/svg)
+![Code Quality Grade](https://www.code-inspector.com/project/12332/status/svg)
+ 
 A small library that uses [animethemes](https://animethemes.moe) index and data.
  
 ### How to use

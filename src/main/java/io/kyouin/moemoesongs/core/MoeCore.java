@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public final class MoeCore {
 
-    private static MoeCore instance = null;
+    private static final MoeCore instance = new MoeCore();
 
     private List<Entry> animeEntries = null;
 
@@ -26,11 +26,7 @@ public final class MoeCore {
         //nothing
     }
 
-    public synchronized static MoeCore getInstance() {
-        if (instance == null) {
-            instance = new MoeCore();
-        }
-
+    public static MoeCore getInstance() {
         return instance;
     }
 
