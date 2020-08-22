@@ -16,10 +16,19 @@ import java.util.stream.Collectors;
 
 public final class MoeCore {
 
+    private static final int DEFAULT_CONCURRENT_THREADS = 4;
+
+    private static final String ANIME_INDEX = "https://www.reddit.com/r/AnimeThemes/wiki/anime_index";
+    private static final String MISC_INDEX = "https://www.reddit.com/r/AnimeThemes/wiki/misc";
+
+    private static final String WIKI_PARAGRAPHS = "div.md.wiki > p";
+    private static final String WIKI_HEADERS = "div.md.wiki > h3";
+
+    private static final String PARAGRAPH_LINKS = "p > a";
+
     private static final MoeCore instance = new MoeCore();
 
     private List<Entry> animeEntries = null;
-
     private List<Entry> gameEntries = null;
 
     private MoeCore() {
@@ -32,7 +41,7 @@ public final class MoeCore {
 
     public List<Entry> getAnimeEntries() {
         if (animeEntries == null) {
-            updateAnimeEntries(MoeConstants.DEFAULT_CONCURRENT_THREADS);
+            updateAnimeEntries(DEFAULT_CONCURRENT_THREADS);
         }
 
         return animeEntries;
@@ -48,21 +57,25 @@ public final class MoeCore {
 
     public void updateAnimeEntries(int concurrentThreads) {
         try {
-            Element index = HtmlUtils.getBody("https://www.reddit.com/r/AnimeThemes/wiki/anime_index");
-            Elements entries = index.select("div.md.wiki > p");
+            Element index = HtmlUtils.getBody(ANIME_INDEX);
+            Elements entries = index.select(WIKI_PARAGRAPHS);
+            ExecutorService executorService = Executors.newFixedThreadPool(concurrentThreads);
+
+            List<String> urls = entries.stream()
+                    .skip(1)
+                    .map(entry -> entry.selectFirst(PARAGRAPH_LINKS).absUrl("abs:href").split("#")[0])
+                    .distinct()
+                    .collect(Collectors.toList());
 
             List<Entry> tempEntries = new ArrayList<>();
-            List<String> urls = entries.stream().skip(1)
-                    .map(entry -> entry.selectFirst("a").absUrl("abs:href").split("#")[0])
-                    .distinct().collect(Collectors.toList());
 
-            ExecutorService executorService = Executors.newFixedThreadPool(concurrentThreads);
             urls.forEach(url -> executorService.execute(() -> {
                 Element body = HtmlUtils.getBody(url);
 
-                tempEntries.addAll(entries.stream().skip(1)
-                        .filter(entry -> entry.selectFirst("a").absUrl("abs:href").split("#")[0].equals(url))
-                        .map(entry -> body.getElementById(entry.selectFirst("a").absUrl("abs:href").split("#")[1]))
+                tempEntries.addAll(entries.stream()
+                        .skip(1)
+                        .filter(entry -> entry.selectFirst(PARAGRAPH_LINKS).absUrl("abs:href").split("#")[0].equals(url))
+                        .map(entry -> body.getElementById(entry.selectFirst(PARAGRAPH_LINKS).absUrl("abs:href").split("#")[1]))
                         .filter(Objects::nonNull)
                         .map(h3 -> Entry.fromElement(h3, EntryType.ANIME))
                         .collect(Collectors.toList()));
@@ -78,12 +91,12 @@ public final class MoeCore {
     }
 
     public void updateAnimeEntries() {
-        updateAnimeEntries(MoeConstants.DEFAULT_CONCURRENT_THREADS);
+        updateAnimeEntries(DEFAULT_CONCURRENT_THREADS);
     }
 
     public void updateGameEntries() {
-        Element index = HtmlUtils.getBody("https://www.reddit.com/r/AnimeThemes/wiki/misc");
-        Elements entries = index.select("div.md.wiki > h3");
+        Element index = HtmlUtils.getBody(MISC_INDEX);
+        Elements entries = index.select(WIKI_HEADERS);
 
         gameEntries = entries.stream().skip(1)
                 .map(entry -> Entry.fromElement(entry, EntryType.GAME))

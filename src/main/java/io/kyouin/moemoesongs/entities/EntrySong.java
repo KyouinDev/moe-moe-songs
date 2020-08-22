@@ -1,54 +1,62 @@
 package io.kyouin.moemoesongs.entities;
 
-import io.kyouin.moemoesongs.enums.EntryType;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EntrySong {
 
+    private static final String SONG_TITLE = "td:nth-child(1)";
+    private static final String SONG_LINK = "td:nth-child(2) > a";
+    private static final String SONG_WHERE = "td:nth-child(3)";
+    private static final String SONG_NOTES = "td:nth-child(4)";
+
+    private static final String THIRD_COL_HEADER = "th:nth-child(3)";
+
     private final Entry entry;
     private final String title;
     private final String version;
-    private final List<String> links;
+    private final String link;
     private final String where;
     private final String notes;
 
-    public static EntrySong fromElement(Element element, Entry entry) {
-        Elements cells = element.select("td");
-        Matcher matcher = Pattern.compile("(.+) ?\"(.+)?\".*").matcher(cells.get(0).text().trim());
+    public static EntrySong fromElement(Element tr, Elements tableHeaders, Entry entry) {
+        Matcher matcher = Pattern.compile("(.+) ?\"(.+)?\".*").matcher(tr.select(SONG_TITLE).text().trim());
 
-        if (!matcher.matches()) throw new IllegalStateException("Could not match song title '" + cells.get(0).text().trim() + "'");
+        if (!matcher.matches()) throw new IllegalStateException("Could not match song title '" + tr.select(SONG_TITLE).text().trim() + "'");
 
         String title = matcher.group(2);
         String version = matcher.group(1);
-        List<String> links = Collections.singletonList(cells.get(1).selectFirst("a").attr("href"));
-        String where = null;
-        String notes = null;
 
-        String cell2Text = cells.size() < 3 || cells.get(2).text().isEmpty() ? null : cells.get(2).text().trim();
-        String cell3Text = cells.size() < 4 || cells.get(3).text().isEmpty() ? null : cells.get(3).text().trim();
-
-        if (cells.size() == 4) {
-            where = cell2Text;
-            notes = cell3Text;
-        } else if (cells.size() == 3) {
-            if (entry.getType() == EntryType.ANIME) where = cell2Text;
-            else notes = cell2Text;
+        if (version != null) {
+            version = version.trim();
         }
 
-        return new EntrySong(entry, title, version, links, where, notes);
+        String link = tr.selectFirst(SONG_LINK).attr("href");
+
+        if ("Notes".equals(tableHeaders.select(THIRD_COL_HEADER).text().trim())) {
+            String notes = tr.select(SONG_NOTES).text().isEmpty() ? null : tr.select(SONG_NOTES).text().trim();
+
+            return new EntrySong(entry, title, version, link, null, notes);
+        }
+
+        String where = tr.select(SONG_WHERE).text().isEmpty() ? null : tr.select(SONG_WHERE).text().trim();
+        String notes = null;
+
+        if (tableHeaders.size() == 4) {
+            notes = tr.select(SONG_NOTES).text().isEmpty() ? null : tr.select(SONG_NOTES).text().trim();
+        }
+
+        return new EntrySong(entry, title, version, link, where, notes);
     }
 
-    public EntrySong(Entry entry, String title, String version, List<String> links, String where, String notes) {
+    public EntrySong(Entry entry, String title, String version, String link, String where, String notes) {
         this.entry = entry;
         this.title = title;
         this.version = version;
-        this.links = links;
+        this.link = link;
         this.where = where;
         this.notes = notes;
     }
@@ -65,8 +73,8 @@ public class EntrySong {
         return version;
     }
 
-    public List<String> getLinks() {
-        return links;
+    public String getLink() {
+        return link;
     }
 
     public String getWhere() {

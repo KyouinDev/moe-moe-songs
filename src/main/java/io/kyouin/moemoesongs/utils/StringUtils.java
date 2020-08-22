@@ -10,7 +10,9 @@ public final class StringUtils {
     }
 
     public static boolean partialMatch(String partial, String complete) {
-        if (partial == null || complete == null || partial.length() > complete.length()) return false;
+        if (partial == null || complete == null || partial.length() > complete.length()) {
+            return false;
+        }
 
         Pattern pattern = Pattern.compile(partial.toLowerCase(Locale.ENGLISH), Pattern.CASE_INSENSITIVE);
 

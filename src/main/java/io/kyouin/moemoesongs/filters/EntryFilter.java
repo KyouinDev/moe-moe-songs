@@ -29,20 +29,19 @@ public final class EntryFilter {
     private EntryFilter(boolean isAnime, boolean isGame) {
         List<Entry> temp = new ArrayList<>();
 
-        if (isAnime) temp.addAll(MoeCore.getInstance().getAnimeEntries());
-        if (isGame) temp.addAll(MoeCore.getInstance().getGameEntries());
+        if (isAnime) {
+            temp.addAll(MoeCore.getInstance().getAnimeEntries());
+        }
+
+        if (isGame) {
+            temp.addAll(MoeCore.getInstance().getGameEntries());
+        }
 
         songs = temp.stream().flatMap(entry -> entry.getSongs().stream());
     }
 
     public EntryFilter filterEntryTitle(String entryTitle) {
-        songs = songs.filter(entry -> StringUtils.partialMatch(entryTitle, entry.getEntry().getTitle()));
-
-        return this;
-    }
-
-    public EntryFilter filterEntryAlternateTitle(String entryAlternateTitle) {
-        songs = songs.filter(entry -> StringUtils.partialMatch(entryAlternateTitle, entry.getEntry().getAlternateTitle()));
+        songs = songs.filter(entry -> StringUtils.partialMatch(entryTitle, entry.getEntry().getTitle()) || StringUtils.partialMatch(entryTitle, entry.getEntry().getAlternateTitle()));
 
         return this;
     }

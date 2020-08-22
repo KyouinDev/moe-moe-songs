@@ -1,13 +1,12 @@
 # MoeMoeSongs
-![Code Quality Score](https://www.code-inspector.com/project/12332/score/svg)
-![Code Quality Grade](https://www.code-inspector.com/project/12332/status/svg)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/01feb41a27d74427a887842b5228a1f8)](https://www.codacy.com/manual/kyouindev/moe-moe-songs?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KyouinDev/moe-moe-songs&amp;utm_campaign=Badge_Grade)
  
 A small library that uses [animethemes](https://animethemes.moe) index and data.
  
-### How to use
+## How to use
 Clone this repository and then launch maven package goal.
  
-### MoeCore
+## MoeCore
 Almost everything is handled by the **MoeCore** class. To browse anime/game entries, you must first load them once. This is automatically done when trying to access an empty entry list.
  
 Here's a sample code:
@@ -25,7 +24,7 @@ public class MyClass {
 Alternatively, you can manually update them (anytime you want) using `updateAnimeEntries(concurrentThreads: int)` and `updateGameEntries()`.
 Default concurrent threads are 4, even for `getAnimeEntries()` first load, but you can modify this value according to your needs (and performances).
  
-### Filters
+## Filters
 There is a filtering system too! Specify whether or not you want anime or game entries, or both.
  
 The following code line will show you how to use filters, taking for example... only Steins;Gate anime openings.
